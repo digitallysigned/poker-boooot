@@ -113,7 +113,6 @@ def estEquity(state, trials = 500):
 
 
 
-
 def decide(state):
     """
     Called every time it's your turn. Look at `state`, then return ONE of:
@@ -149,18 +148,14 @@ def decide(state):
     """
 
     
-
-
-
-
-
-
     strength = hand_strength(state.my_cards, state.board)
     #print(strength)
     confidence = strength
 
     chip_count_bias = (state.my_stack / (state.my_stack + state.to_call)) ** 2
     confidence += (1 - chip_count_bias)
+
+    confidence += (1 - estEquity(state, trials = 500))
 
     stacks = []
 
