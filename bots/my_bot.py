@@ -168,10 +168,10 @@ def decide(state):
         if stack > state.my_stack:
             ranking += 1
 
-    for opp in state.opponents:
-        sus = call_opp_bluff(state, opp, False)
-        if call_opp_bluff(state, opp, sus):
-            pass
+    #for opp in state.opponents:
+    #    sus = call_opp_bluff(state, opp, False)
+    #    if call_opp_bluff(state, opp, sus):
+    #        pass
             #print("ignore")
             #confidence += get_opp_bet(state, opp)
 
