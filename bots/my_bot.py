@@ -15,8 +15,92 @@ On Windows, type `python` (or `py`) instead of `python3`.
 """
 from pokerbot import all_in, call, check, fold, raise_to, run
 from pokerbot.cards import describe_hand, hand_strength, is_pair, rank
+from collections import Counter
+from itertools import combinations
+import random
 
 BOT_NAME = "test"   # change this to your team's name!
+
+RANKS = "23456789TJQKA"
+SUITS = "shdc"
+
+def estEquity(state, trials = 500):
+
+    myCards = list(state.my_cards)
+    board = list(state.board)
+
+    known = myCards + board
+
+    if len(set(known)) != len(known):
+        raise ValueError("Duplicate known cards")
+
+    deck = [
+        rank + suit
+        for rank in RANKS
+        for suit in SUITS
+        if rank + suit not in known
+    ]
+
+    opponents = [
+        opponent for opponent in state.opponents
+        if str(opponent.status).lower() not in
+        ("folded", "fold", "out", "eliminated") 
+    ]
+
+    numPlayersDealt = len(state.opponetns)
+
+    missingBoard = 5 - len(board)
+
+    required = 2 * numPlayersDealt + missingBoard
+
+    if required > len(deck):
+        raise ValueError("Not enough cards left in the deck to deal")
+
+    shares = 0.0
+
+
+    for _ in range(trials):
+        random.shuffle(deck)
+
+        opponentHands = [
+            deck[i * 2: i * 2 + 2]
+            for i in range(numPlayersDealt)
+        ]
+
+        boardStart = 2 * numPlayersDealt
+        simBoard = (
+            board + deck[boardStart: boardStart + missingBoard]
+        )
+
+        myScore = hand_strength(myCards, simBoard)
+
+        scores = [myScore]
+
+        for opponent, cards in zip(
+            state.opponents, opponentHands
+        ):
+
+            status = str(opponent.status).lower()
+
+            if status in(
+                "folded", "fold", "out", "eliminated"
+            ):
+                continue
+
+            score = hand_strength(cards, simBoard)
+            scores.append(score)
+
+        best = max(scores)
+        winners = sum(score == best for score in scores)
+
+        if myScore == best:
+            shares += 1 / winners
+
+    return shares / trials
+        
+
+
+
 
 
 def decide(state):
@@ -54,6 +138,14 @@ def decide(state):
     Don't worry about making an illegal move: it gets fixed for you, and a
     note is printed so you can see what happened.
     """
+
+    
+
+
+
+
+
+
     strength = hand_strength(state.my_cards, state.board)
     confidence *= strength
 
@@ -86,7 +178,7 @@ def decide(state):
     # 1. Big hand: raise! Before the flop, a high pair (nines or better) is
     #    strong. After the flop, look for three of a kind or better.
     if state.street == "preflop":
-        strong = is_pair(state.my_cards) and rank(state.my_cards[0]) >= 9
+        strong = is_pair(state.my_cards) and rank(state.my_cards[0]) >= 7
     else:
         strong = confidence >= 0.7
 
