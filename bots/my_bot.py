@@ -217,6 +217,13 @@ def decide(state):
     if confidence >= 0.3 or state.pot_odds <= 0.2:
         return call()
 
+
+    if state.hand_number > 16 and state.my_stack > 3100:
+        return fold
+
+
+
+
     print(f"Confidence: {confidence:.2f}, Pot odds: {state.pot_odds:.2f}")
 
     return fold()
