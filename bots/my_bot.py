@@ -18,27 +18,23 @@ from pokerbot.cards import describe_hand, hand_strength, is_pair, rank
 from collections import Counter
 from itertools import combinations
 import random
-import time
 
 BOT_NAME = "rock-paper-scissors"   # change this to your team's name!
 
-RANKS = "23456789TJQKA"     #define cards and suits
+RANKS = "23456789TJQKA"
 SUITS = "shdc"
 
-#"Monte Carlo" simulation
-def estEquity(state, trials = 500):    #set sim, 500 times
+def estEquity(state, trials = 500):
 
-    startTime = time.perf_counter()   #start timer
+    myCards = list(state.my_cards)
+    board = list(state.board)
 
-    myCards = list(state.my_cards)   #our cards
-    board = list(state.board)        #cards laid down
-
-    known = myCards + board   #combine known cards
+    known = myCards + board
 
     if len(set(known)) != len(known):
-        raise ValueError("Duplicate known cards") #check for any dupes
+        raise ValueError("Duplicate known cards")
 
-    deck = [                       #remaining cards in deck
+    deck = [
         rank + suit
         for rank in RANKS
         for suit in SUITS
@@ -51,10 +47,11 @@ def estEquity(state, trials = 500):    #set sim, 500 times
         ("folded", "fold", "out", "eliminated") 
     ]
 
-    numPlayersDealt = len(state.opponents)    #how many opps
-    missingBoard = 5 - len(board)    #cards left to be dealt
+    numPlayersDealt = len(state.opponetns)
 
-    required = 2 * numPlayersDealt + missingBoard   #prevent too many cards to be dealt in sim
+    missingBoard = 5 - len(board)
+
+    required = 2 * numPlayersDealt + missingBoard
 
     if required > len(deck):
         raise ValueError("Not enough cards left in the deck to deal")
@@ -62,8 +59,8 @@ def estEquity(state, trials = 500):    #set sim, 500 times
     shares = 0.0
 
 
-    for _ in range(trials):            #_ is purely a variable name
-        random.shuffle(deck)     #shuffle remaining deck to gen random outcomes
+    for _ in range(trials):
+        random.shuffle(deck)
 
         opponentHands = [
             deck[i * 2: i * 2 + 2]
@@ -72,10 +69,10 @@ def estEquity(state, trials = 500):    #set sim, 500 times
 
         boardStart = 2 * numPlayersDealt
         simBoard = (
-            board + deck[boardStart: boardStart + missingBoard]   #complete board based on shuffled deck
+            board + deck[boardStart: boardStart + missingBoard]
         )
 
-        myScore = hand_strength(myCards, simBoard)  #eval hands
+        myScore = hand_strength(myCards, simBoard)
 
         scores = [myScore]
 
@@ -97,16 +94,24 @@ def estEquity(state, trials = 500):    #set sim, 500 times
         winners = sum(score == best for score in scores)
 
         if myScore == best:
-            shares += 1 / winners   #how many wins
-
-        timeTaken = time.perf_counter - startTime
+            shares += 1 / winners
 
     return shares / trials
         
 
+def call_opp_bluff(state, opponent, sus):
+    if opponent.status == "active":
+        if state.street == "river" and sus:
+            if (opponent.bet // opponent.stack) > 0.90:
+                return False
+        else:
+            if (opponent.bet // opponent.stack) > 0.80:
+                return False
+            else:
+                return True
 
-
-
+def get_opp_bet(state, opponent):
+    return (0.6 - (opponent.bet / opponent.stack))
 
 def decide(state):
     """
@@ -144,12 +149,17 @@ def decide(state):
 
     
 
+
+
+
+
+
     strength = hand_strength(state.my_cards, state.board)
     #print(strength)
     confidence = strength
 
     chip_count_bias = (state.my_stack / (state.my_stack + state.to_call)) ** 2
-    confidence *= chip_count_bias
+    confidence += (1 - chip_count_bias)
 
     stacks = []
 
@@ -198,7 +208,6 @@ def decide(state):
 
     # 2. Free to stay in? Then check.
     if state.can_check and confidence < 0.9:
-
         return check()
 
     # 3. Decent hand, or calling is cheap compared to the pot: call.
@@ -208,20 +217,6 @@ def decide(state):
     print(f"Confidence: {confidence:.2f}, Pot odds: {state.pot_odds:.2f}")
 
     return fold()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 # ----------------------------------------------------------------------
