@@ -100,7 +100,7 @@ def estEquity(state, trials = 500):
         
 
 
-
+def nuance(factors, confidence)
 
 
 def decide(state):
@@ -188,6 +188,7 @@ def decide(state):
 
     # 2. Free to stay in? Then check.
     if state.can_check and confidence < 0.9:
+
         return check()
 
     # 3. Decent hand, or calling is cheap compared to the pot: call.
