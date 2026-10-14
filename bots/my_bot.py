@@ -18,6 +18,7 @@ from pokerbot.cards import describe_hand, hand_strength, is_pair, rank
 from collections import Counter
 from itertools import combinations
 import random
+import time
 
 BOT_NAME = "rock-paper-scissors"   # change this to your team's name!
 
@@ -25,6 +26,9 @@ RANKS = "23456789TJQKA"
 SUITS = "shdc"
 
 def estEquity(state, trials = 500):
+
+    startTime = time.perf_counter()
+
 
     myCards = list(state.my_cards)
     board = list(state.board)
