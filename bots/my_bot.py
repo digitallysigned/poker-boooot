@@ -18,6 +18,7 @@ from pokerbot.cards import describe_hand, hand_strength, is_pair, rank
 from collections import Counter
 from itertools import combinations
 import random
+import time
 
 BOT_NAME = "test"   # change this to your team's name!
 
@@ -26,6 +27,8 @@ SUITS = "shdc"
 
 #"Monte Carlo" simulation
 def estEquity(state, trials = 500):    #set sim, 500 times
+
+    startTime = time.perf_counter()   #start timer
 
     myCards = list(state.my_cards)   #our cards
     board = list(state.board)        #cards laid down
@@ -95,6 +98,13 @@ def estEquity(state, trials = 500):    #set sim, 500 times
 
         if myScore == best:
             shares += 1 / winners   #how many wins
+
+        timeTaken = time.perf_counter - startTime
+
+        print(f"Simulated {trials} trials in {timeTaken:.2f} seconds")
+        print(f"Estimated equity: {shares / trials:.3f}")
+
+    
 
     return shares / trials    #final equity
         
@@ -194,6 +204,20 @@ def decide(state):
         return call()
 
     return fold()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # ----------------------------------------------------------------------
