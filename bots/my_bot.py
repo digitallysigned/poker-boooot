@@ -188,6 +188,13 @@ def decide(state):
     if ranking < 3 and state.hand_number > 19:
         return all_in()
     
+   # if pot > 2*state.my_stack and confidence > 0.5:
+    #    return raise_to(min(state.min_raise * 1.5, state.max_raise))
+
+    if pot < state.my_stack/1.5:
+        return call()
+        # not worth betting  
+
     #if confidence < 0.2 and ranking > 2 and (state.street != "turn" or state.street != "river"):
     #    return fold()
 
