@@ -191,8 +191,8 @@ def decide(state):
    # if pot > 2*state.my_stack and confidence > 0.5:
     #    return raise_to(min(state.min_raise * 1.5, state.max_raise))
 
-    if pot < state.my_stack/1.5:
-        return call()
+    #if state.pot < state.my_stack/1.5 and confidence < 0.7:
+    #    return call()
         # not worth betting  
 
     #if confidence < 0.2 and ranking > 2 and (state.street != "turn" or state.street != "river"):
