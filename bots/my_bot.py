@@ -19,6 +19,12 @@ from pokerbot.cards import describe_hand, hand_strength, is_pair, rank
 BOT_NAME = "test"   # change this to your team's name!
 
 
+
+def ballsyness(confidence, factors):
+    for i in factors:
+        confidence *= i
+    return confidence
+
 def decide(state):
     confidence = 1
 
@@ -56,6 +62,7 @@ def decide(state):
     """
     strength = hand_strength(state.my_cards, state.board)
     confidence *= strength
+
 
     pots = []
 
