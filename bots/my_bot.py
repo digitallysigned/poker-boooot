@@ -194,7 +194,7 @@ def decide(state):
     # 1. Big hand: raise! Before the flop, a high pair (nines or better) is
     #    strong. After the flop, look for three of a kind or better.
     if state.street == "preflop":
-        strong = is_pair(state.my_cards) and rank(state.my_cards[0]) >= 7
+        bool(strong) = is_pair(state.my_cards) and rank(state.my_cards[0]) >= 7
     else:
         confidence >= 0.7
 
