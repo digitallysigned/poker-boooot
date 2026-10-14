@@ -51,7 +51,7 @@ def estEquity(state, trials = 500):
         ("folded", "fold", "out", "eliminated") 
     ]
 
-    numPlayersDealt = len(state.opponetns)
+    numPlayersDealt = len(state.opponents)
 
     missingBoard = 5 - len(board)
 
@@ -100,7 +100,7 @@ def estEquity(state, trials = 500):
         if myScore == best:
             shares += 1 / winners   #how many wins
 
-        timeTaken = time.perf_counter - startTime
+        timeTaken = time.perf_counter() - startTime
 
         print(f"Simulated {trials} trials in {timeTaken:.2f} seconds")
         print(f"Estimated equity: {shares / trials:.3f}")
@@ -152,10 +152,10 @@ def decide(state):
     #print(strength)
     confidence = strength
 
-    chip_count_bias = (state.my_stack / (state.my_stack + state.to_call)) ** 2
-    confidence += (1 - chip_count_bias)
+    chip_count_bias = (state.my_stack / (state.my_stack + state.to_call)) 
+    confidence -= (1 - chip_count_bias)
 
-    confidence += (1 - estEquity(state, trials = 500))
+    confidence += (1 - estEquity(state, trials = 100))
 
     stacks = []
 
@@ -182,7 +182,7 @@ def decide(state):
             #confidence += get_opp_bet(state, opp)
 
 
-
+    print(confidence)
     
 
     if ranking < 3 and state.hand_number > 19:
