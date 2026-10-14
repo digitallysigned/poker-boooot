@@ -57,7 +57,10 @@ def decide(state):
     strength = hand_strength(state.my_cards, state.board)
     confidence *= strength
 
-    pots = []
+    chip_count_bias = (state.my_stack / (state.my_stack + state.to_call)) ** 2
+    confidence *= chip_count_bias
+
+    stacks = []
 
     for opp in state.opponents:
         if opp.stack == 0:
@@ -67,17 +70,18 @@ def decide(state):
             opp_state_bias += 0.03
         confidence *= (1 - opp_state_bias)
 
-        pots.append(opp.stack)
+        stacks.append(opp.stack)
 
     ranking = 1
-    for pot in pots:
-        if pot > state.my_stack:
+    for stack in stacks:
+        if stack > state.my_stack:
             ranking += 1
 
     if ranking < 3 and state.hand_number > 19:
         return all_in()
     
-
+    #if confidence < 0.2 and ranking > 2 and (state.street != "turn" or state.street != "river"):
+    #    return fold()
 
     # 1. Big hand: raise! Before the flop, a high pair (nines or better) is
     #    strong. After the flop, look for three of a kind or better.
@@ -86,9 +90,9 @@ def decide(state):
     else:
         strong = confidence >= 0.7
 
-    if strong and state.can_raise and not state.can_check:
+    if strong and state.can_raise:
         # Raise to three times the minimum, but never more than we're allowed
-        return raise_to(min(state.min_raise * 3, state.max_raise))
+        return raise_to(min(state.min_raise * 1.5, state.max_raise))
 
     # 2. Free to stay in? Then check.
     if state.can_check and confidence < 0.9:
@@ -98,7 +102,6 @@ def decide(state):
     if strength >= 0.3 or state.pot_odds <= 0.2:
         return call()
 
-    # 4. Otherwise, give up.
     return fold()
 
 
