@@ -116,5 +116,7 @@ def hand_strength(my_cards: list[str], board: list[str]) -> float:
     if is_suited(my_cards):
         score += 0.05
     if abs(high - low) == 1:
-        score += 0.05                # connected, e.g. 9 and 10
+        score += 0.05    # connected, e.g. 9 and 10
+
+
     return score
