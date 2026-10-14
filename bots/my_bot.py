@@ -16,10 +16,12 @@ On Windows, type `python` (or `py`) instead of `python3`.
 from pokerbot import all_in, call, check, fold, raise_to, run
 from pokerbot.cards import describe_hand, hand_strength, is_pair, rank
 
-BOT_NAME = "MyBot"   # change this to your team's name!
+BOT_NAME = "test"   # change this to your team's name!
 
 
 def decide(state):
+    confidence = 1
+
     """
     Called every time it's your turn. Look at `state`, then return ONE of:
 
@@ -53,20 +55,43 @@ def decide(state):
     note is printed so you can see what happened.
     """
     strength = hand_strength(state.my_cards, state.board)
+    confidence *= strength
+
+    pots = []
+
+    for opp in state.opponents:
+        if opp.stack == 0:
+            continue
+        opp_state_bias = (opp.stack / (opp.stack + opp.bet)) ** 2
+        if opp.status == "folded":
+            opp_state_bias += 0.03
+        confidence *= (1 - opp_state_bias)
+
+        pots.append(opp.stack)
+
+    ranking = 1
+    for pot in pots:
+        if pot > state.my_stack:
+            ranking += 1
+
+    if ranking < 3 and state.hand_number > 19:
+        return all_in()
+    
+
 
     # 1. Big hand: raise! Before the flop, a high pair (nines or better) is
     #    strong. After the flop, look for three of a kind or better.
     if state.street == "preflop":
         strong = is_pair(state.my_cards) and rank(state.my_cards[0]) >= 9
     else:
-        strong = strength >= 0.7
+        strong = confidence >= 0.7
 
-    if strong and state.can_raise:
+    if strong and state.can_raise and not state.can_check:
         # Raise to three times the minimum, but never more than we're allowed
         return raise_to(min(state.min_raise * 3, state.max_raise))
 
     # 2. Free to stay in? Then check.
-    if state.can_check:
+    if state.can_check and confidence < 0.9:
         return check()
 
     # 3. Decent hand, or calling is cheap compared to the pot: call.
