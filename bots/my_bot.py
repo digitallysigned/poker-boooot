@@ -21,20 +21,21 @@ import random
 
 BOT_NAME = "test"   # change this to your team's name!
 
-RANKS = "23456789TJQKA"
+RANKS = "23456789TJQKA"     #define cards and suits
 SUITS = "shdc"
 
-def estEquity(state, trials = 500):
+#"Monte Carlo" simulation
+def estEquity(state, trials = 500):    #set sim, 500 times
 
-    myCards = list(state.my_cards)
-    board = list(state.board)
+    myCards = list(state.my_cards)   #our cards
+    board = list(state.board)        #cards laid down
 
-    known = myCards + board
+    known = myCards + board   #combine known cards
 
     if len(set(known)) != len(known):
-        raise ValueError("Duplicate known cards")
+        raise ValueError("Duplicate known cards") #check for any dupes
 
-    deck = [
+    deck = [                       #remaining cards in deck
         rank + suit
         for rank in RANKS
         for suit in SUITS
@@ -47,11 +48,10 @@ def estEquity(state, trials = 500):
         ("folded", "fold", "out", "eliminated") 
     ]
 
-    numPlayersDealt = len(state.opponetns)
+    numPlayersDealt = len(state.opponents)    #how many opps
+    missingBoard = 5 - len(board)    #cards left to be dealt
 
-    missingBoard = 5 - len(board)
-
-    required = 2 * numPlayersDealt + missingBoard
+    required = 2 * numPlayersDealt + missingBoard   #prevent too many cards to be dealt in sim
 
     if required > len(deck):
         raise ValueError("Not enough cards left in the deck to deal")
@@ -59,8 +59,8 @@ def estEquity(state, trials = 500):
     shares = 0.0
 
 
-    for _ in range(trials):
-        random.shuffle(deck)
+    for _ in range(trials):            #_ is purely a variable name
+        random.shuffle(deck)     #shuffle remaining deck to gen random outcomes
 
         opponentHands = [
             deck[i * 2: i * 2 + 2]
@@ -69,10 +69,10 @@ def estEquity(state, trials = 500):
 
         boardStart = 2 * numPlayersDealt
         simBoard = (
-            board + deck[boardStart: boardStart + missingBoard]
+            board + deck[boardStart: boardStart + missingBoard]   #complete board based on shuffled deck
         )
 
-        myScore = hand_strength(myCards, simBoard)
+        myScore = hand_strength(myCards, simBoard)  #eval hands
 
         scores = [myScore]
 
@@ -94,9 +94,9 @@ def estEquity(state, trials = 500):
         winners = sum(score == best for score in scores)
 
         if myScore == best:
-            shares += 1 / winners
+            shares += 1 / winners   #how many wins
 
-    return shares / trials
+    return shares / trials    #final equity
         
 
 
@@ -141,16 +141,14 @@ def decide(state):
 
     
 
-
-
-
-
-
     strength = hand_strength(state.my_cards, state.board)
     confidence *= strength
 
     chip_count_bias = (state.my_stack / (state.my_stack + state.to_call)) ** 2
     confidence *= chip_count_bias
+
+    equity = estEquity(state, trials=500)
+    confidence *= equity
 
     stacks = []
 
