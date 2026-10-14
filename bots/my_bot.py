@@ -170,7 +170,7 @@ def decide(state):
         opp_state_bias = (opp.stack / (opp.stack + opp.bet)) ** 2
         if opp.status == "folded":
             opp_state_bias += 0.03
-        #confidence *= (1 - opp_state_bias)
+        confidence += (1 - opp_state_bias)
 
     stacks.append(opp.stack)
 
