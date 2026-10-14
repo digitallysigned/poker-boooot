@@ -19,7 +19,7 @@ from collections import Counter
 from itertools import combinations
 import random
 
-BOT_NAME = "test"   # change this to your team's name!
+BOT_NAME = "rock-paper-scissors"   # change this to your team's name!
 
 RANKS = "23456789TJQKA"
 SUITS = "shdc"
@@ -99,13 +99,21 @@ def estEquity(state, trials = 500):
     return shares / trials
         
 
+def call_opp_bluff(state, opponent, sus):
+    if opponent.status == "active":
+        if state.street == "river" and sus:
+            if (opponent.bet // opponent.stack) > 0.90:
+                return False
+        else:
+            if (opponent.bet // opponent.stack) > 0.80:
+                return False
+            else:
+                return True
 
-
-
+def get_opp_bet(state, opponent):
+    return (0.6 - (opponent.bet / opponent.stack))
 
 def decide(state):
-    confidence = 1
-
     """
     Called every time it's your turn. Look at `state`, then return ONE of:
 
@@ -147,10 +155,11 @@ def decide(state):
 
 
     strength = hand_strength(state.my_cards, state.board)
-    confidence *= strength
+    #print(strength)
+    confidence = strength
 
     chip_count_bias = (state.my_stack / (state.my_stack + state.to_call)) ** 2
-    confidence *= chip_count_bias
+    confidence += (1 - chip_count_bias)
 
     stacks = []
 
@@ -160,14 +169,25 @@ def decide(state):
         opp_state_bias = (opp.stack / (opp.stack + opp.bet)) ** 2
         if opp.status == "folded":
             opp_state_bias += 0.03
-        confidence *= (1 - opp_state_bias)
+        #confidence *= (1 - opp_state_bias)
 
-        stacks.append(opp.stack)
+    stacks.append(opp.stack)
 
     ranking = 1
     for stack in stacks:
         if stack > state.my_stack:
             ranking += 1
+
+    for opp in state.opponents:
+        sus = call_opp_bluff(state, opp, False)
+        if call_opp_bluff(state, opp, sus):
+            pass
+            #print("ignore")
+            #confidence += get_opp_bet(state, opp)
+
+
+
+    
 
     if ranking < 3 and state.hand_number > 19:
         return all_in()
@@ -191,8 +211,10 @@ def decide(state):
         return check()
 
     # 3. Decent hand, or calling is cheap compared to the pot: call.
-    if strength >= 0.3 or state.pot_odds <= 0.2:
+    if confidence >= 0.3 or state.pot_odds <= 0.2:
         return call()
+
+    print(f"Confidence: {confidence:.2f}, Pot odds: {state.pot_odds:.2f}")
 
     return fold()
 
