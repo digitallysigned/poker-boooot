@@ -110,7 +110,7 @@ def estEquity(state, trials = 500):    #set sim, 500 times
         
 
 
-def nuance(factors, confidence)
+
 
 
 def decide(state):
