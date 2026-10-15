@@ -1,32 +1,23 @@
-# NUCATS Pokerbots
+# Bot Poker yeaaa
 
-Write a bot that plays No-Limit Texas Hold'em, then watch it play against everyone else's bots on the NUCATS table.
+Team of 4 attempt at making a poker bot for the Newcastle University computing society bot poker event.
 
-## Start here
 
-**→ [`bots/README.md`](bots/README.md)**
+Rough credits for the code:
 
-That guide takes you from nothing to a working bot. In short:
+- digitallysigned: general logic, division of labor & team coordination, github assistance (lmfao)
+- joe: equity simulations, poker knowledge (the only real poker player)
+- warren: strategy and planning, pointing out bad designs :skull:
+- marcel: moral support 
 
-```bash
-cd bots
-python3 my_bot.py --host <server address> --port <port>
-```
 
-Then open `bots/my_bot.py` and change `decide()` to make the bot your own.
 
-## What's in here
+### Thank you to:
 
-| | |
-|---|---|
-| [`bots/`](bots/) | Your starter kit. **`my_bot.py` is the only file you need to edit.** |
-| [`server/`](server/) | The table server the tournament runs on. Run it on your own computer to test your bot ([how](bots/README.md#practising-on-your-own-computer)). |
-| [`docs/protocol.md`](docs/protocol.md) | The full technical spec for how bots talk to the server. Read this if you want to write your bot in a language other than Python. |
+- The NUCATS organizing team for hosting the event and giving us all an awesome day
 
-## The rules in one minute
+- The rest of my team for being awesome and giving the competition a good shot
 
-- No-Limit Texas Hold'em, up to **6 bots** at a table.
-- Everyone starts with **1000 chips**. Blinds are **10/20**.
-- A match is **20 hands**, and the most chips at the end wins.
-- **5 seconds** per move. If you're too slow, you check, or fold if you can't check.
-- Get the server **address and port** from the organisers.
+
+
+\- vi
